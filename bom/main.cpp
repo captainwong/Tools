@@ -79,17 +79,16 @@ bool add_bom(const fs::path& fpath)
 
 bool remove_bom(const fs::path& fpath)
 {
-	std::fstream f(fpath.wstring(), ios::binary | ios::in | ios::out);
+	std::fstream f(fpath.wstring(), ios::binary | ios::in);
 	if (!f) { cout << "Cannot open file: " << fpath << endl; return false; }
 
 	char buff[3] = { 0 };
 	f.read(buff, 3);
 	if (is_bom(buff)) {
-		f.seekg(3, ios::beg);
 		std::stringstream ss;
 		ss << f.rdbuf();
-		f.clear();
-		f.seekg(0, ios::beg);
+		f.close();
+		f.open(fpath.wstring(), ios::binary | ios::out);
 		f << ss.rdbuf();
 		f.close();
 	}
