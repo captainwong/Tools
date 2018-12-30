@@ -26,3 +26,5 @@ A small tool calls `putty` with `username`/`password`, and can store sessions in
 
 * Change `putty`'s location
 * Delete folder and session
+* ppk support
+* Password encryption
