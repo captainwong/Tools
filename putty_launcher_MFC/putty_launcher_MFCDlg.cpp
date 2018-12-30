@@ -446,12 +446,12 @@ void CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1(NMHDR *pNMHDR, LRESULT *pRes
 	} else {
 		auto data = getItemData(pTVDispInfo->item.hItem);
 		if (data && data->is_folder) {
-			TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 1\n");
-			*pResult = 1;
-		} else {
-			TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 0 m_is_editting_label true\n");
-			m_is_editting_label = true;
+			TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 0\n");
 			*pResult = 0;
+		} else {
+			TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 1 m_is_editting_label true\n");
+			m_is_editting_label = true;
+			*pResult = 1;
 		}
 	}
 }
@@ -580,8 +580,9 @@ BOOL CputtylauncherMFCDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 BOOL CputtylauncherMFCDlg::PreTranslateMessage(MSG* pMsg)
 {
 	if (m_is_editting_label) {
-		if (pMsg->message == WM_KEYUP) {
+		if (pMsg->message == WM_KEYDOWN) {
 			if (pMsg->wParam == VK_RETURN) {
+				m_is_editting_label = false;
 				m_tree.EndEditLabelNow(FALSE);
 				return TRUE;
 			}
