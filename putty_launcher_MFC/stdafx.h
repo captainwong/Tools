@@ -31,10 +31,19 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
+#include <afxcontrolbars.h>
 
 
 
+#ifdef min
+#undef min
+#endif
 
+#ifdef max
+#undef max
+#endif 
+
+#include <algorithm>
 
 
 

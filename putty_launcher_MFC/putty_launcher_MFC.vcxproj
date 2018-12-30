@@ -119,6 +119,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(DEVLIBS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -183,6 +184,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\dev_libs\json\jsoncpp-stdafx\json.h" />
+    <ClInclude Include="CreateSessionDlg.h" />
     <ClInclude Include="putty_launcher_MFC.h" />
     <ClInclude Include="putty_launcher_MFCDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -190,6 +193,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\dev_libs\json\jsoncpp-stdafx\json_reader.cpp" />
+    <ClCompile Include="..\..\..\dev_libs\json\jsoncpp-stdafx\json_value.cpp" />
+    <ClCompile Include="..\..\..\dev_libs\json\jsoncpp-stdafx\json_writer.cpp" />
+    <ClCompile Include="CreateSessionDlg.cpp" />
     <ClCompile Include="putty_launcher_MFC.cpp" />
     <ClCompile Include="putty_launcher_MFCDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
