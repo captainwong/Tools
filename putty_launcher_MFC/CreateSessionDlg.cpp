@@ -45,6 +45,15 @@ BOOL CCreateSessionDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
+	if (session) {
+		m_name.SetWindowTextW(session->name.data());
+		m_host.SetWindowTextW(session->host.data());
+		m_port.SetWindowTextW(session->port.data());
+		m_user.SetWindowTextW(session->username.data());
+		m_passwd.SetWindowTextW(session->password.data());
+
+	}
+
 	m_radio_ssh.SetCheck(1);
 	//m_radio_ssh.EnableWindow(0);
 
@@ -67,14 +76,16 @@ void CCreateSessionDlg::OnBnClickedOk()
 		return;
 	}
 
-	session = std::make_shared<Session>();
+	if (!session) {
+		session = std::make_shared<Session>();
+	}
+	
 	session->name = name.GetBuffer();
 	session->host = host.GetBuffer();
 	session->port = port.GetBuffer();
 	session->type = L"ssh";
 	session->username = user.GetBuffer();
 	session->password = pass.GetBuffer();
-
 
 	CDialogEx::OnOK();
 }

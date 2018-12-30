@@ -10,6 +10,8 @@
 #include <Shlwapi.h>  
 #pragma comment(lib, "shlwapi.lib")  //Windows API   PathFileExists  
 
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -18,6 +20,7 @@ enum MenuId {
 	AddFolder = WM_USER + 1,
 	AddSession,
 	Rename,
+	Edit,
 	Delete,
 
 };
@@ -73,6 +76,7 @@ void CputtylauncherMFCDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TREE1, m_tree);
 	DDX_Control(pDX, IDC_CHECK1, m_chk_show_pwd);
 	DDX_Control(pDX, IDC_EDIT6, m_session_connection_string);
+	DDX_Control(pDX, IDC_BUTTON_CONNECT_SESSION, m_btn_connect_session);
 }
 
 BEGIN_MESSAGE_MAP(CputtylauncherMFCDlg, CDialogEx)
@@ -89,6 +93,9 @@ BEGIN_MESSAGE_MAP(CputtylauncherMFCDlg, CDialogEx)
 	ON_NOTIFY(TVN_ENDLABELEDIT, IDC_TREE1, &CputtylauncherMFCDlg::OnTvnEndlabeleditTree1)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &CputtylauncherMFCDlg::OnTvnSelchangedTree1)
 	ON_BN_CLICKED(IDC_CHECK1, &CputtylauncherMFCDlg::OnBnClickedCheck1)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CputtylauncherMFCDlg::OnBnClickedButtonSave)
+	ON_BN_CLICKED(IDC_BUTTON_CONNECT_SESSION, &CputtylauncherMFCDlg::OnBnClickedButtonConnectSession)
+	ON_NOTIFY(NM_DBLCLK, IDC_TREE1, &CputtylauncherMFCDlg::OnNMDblclkTree1)
 END_MESSAGE_MAP()
 
 
@@ -123,19 +130,248 @@ BOOL CputtylauncherMFCDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 
-	findPutty();
+	initTree();
+	loadFromJson();
 
-	m_chk_show_pwd.SetCheck(0);
+	m_tree.SelectItem(m_root_item);
+	m_tree.Expand(m_root_item, TVE_EXPAND);
+	m_tree.Invalidate();
 
+	m_btn_connect_session.EnableWindow(0);
+	
+	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+void CputtylauncherMFCDlg::initTree()
+{
 	TCHAR szWindows[MAX_PATH + 1] = { 0 };
 	GetWindowsDirectory(szWindows, MAX_PATH);
 	SHFILEINFO sfi = { 0 };
 	UINT nFlags = SHGFI_SYSICONINDEX | (SHGFI_SMALLICON);
 	m_image_list = (HIMAGELIST)SHGetFileInfo(szWindows, 0, &sfi, sizeof(sfi), nFlags);
 	m_tree.SetImageList(CImageList::FromHandle(m_image_list), 0);
-	m_root_item = createItem(L"Sessions", true);
+	m_root_item = createItem(L"Sessions", nullptr, true);
+}
 
-	return TRUE;  // return TRUE  unless you set the focus to a control
+CString CputtylauncherMFCDlg::getDataPath() const
+{
+	CString path;
+	AfxGetModuleFileName(AfxGetInstanceHandle(), path);
+	path = path.Left(path.ReverseFind('\\') + 1);
+	path += L"putty_launcher";
+	CreateDirectoryW(path, NULL);
+	return path;
+}
+
+void CputtylauncherMFCDlg::parseFolderAndCreate(Json::Value & folders, HTREEITEM parentItem)
+{
+	USES_CONVERSION;
+	if (folders.isArray()) {
+		for (Json::ArrayIndex i = 0; i < folders.size(); i++) {
+			auto& folder = folders[i];
+			auto hItem = createItem(A2W(folder["name"].asCString()), parentItem, true, folder["expand"].asBool(), false);
+
+			auto sub_folders = folder["folders"];
+			parseFolderAndCreate(sub_folders, hItem);
+
+			auto& sessions = folder["sessions"];
+			parseSessionAndCreate(sessions, hItem);
+		}
+	}
+}
+
+void CputtylauncherMFCDlg::parseSessionAndCreate(Json::Value & sessions, HTREEITEM parentItem)
+{
+	USES_CONVERSION;
+	if (sessions.isArray()) {
+		for (Json::ArrayIndex i = 0; i < sessions.size(); i++) {
+			auto& session = sessions[i];
+			CString name = A2W(session["name"].asCString());
+			CString host = A2W(session["host"].asCString());
+			CString port = A2W(session["port"].asCString());
+			CString type = A2W(session["type"].asCString());
+			CString username = A2W(session["username"].asCString());
+			CString password = A2W(session["password"].asCString());
+
+			auto ss = std::make_shared<Session>();
+			ss->name = name.GetBuffer();
+			ss->host = host.GetBuffer();
+			ss->port = port.GetBuffer();
+			ss->type = type.GetBuffer();
+			ss->username = username.GetBuffer();
+			ss->password = password.GetBuffer();
+
+			createItem(name, parentItem, false, false, false, ss);
+		}
+	}
+}
+
+void CputtylauncherMFCDlg::parseTreeAndSave(HTREEITEM parentItem, Json::Value & value)
+{
+	USES_CONVERSION;
+	auto& folders = value["folders"];
+	auto& sessions = value["sessions"];
+
+	auto hItem = m_tree.GetChildItem(parentItem);
+	while (hItem) {
+		auto data = getItemData(hItem);
+		if (!data)break;
+		if (data->is_folder) {
+			Json::Value folder;
+			folder["name"] = W2A(data->name.data());
+			folder["expand"] = (m_tree.GetItemState(hItem, TVIS_EXPANDED) & TVIS_EXPANDED) ? true : false;
+
+			parseTreeAndSave(hItem, folder);
+			folders.append(folder);
+		} else {
+			const auto& ss = data->session;
+			Json::Value session;
+			session["name"] = W2A(ss->name.data());
+			session["host"] = W2A(ss->host.data());
+			session["port"] = W2A(ss->port.data());
+			session["type"] = W2A(ss->type.data());
+			session["username"] = W2A(ss->username.data());
+			session["password"] = W2A(ss->password.data());
+			sessions.append(session);
+		}
+
+		hItem = m_tree.GetNextSiblingItem(hItem);
+	}
+}
+
+void CputtylauncherMFCDlg::loadFromJson()
+{
+	USES_CONVERSION;
+
+	auto path = getDataPath() + L"\\putty_launcher.json";
+	CFile f;
+	if (f.Open(path, CFile::modeRead)) {
+		UINT len = f.GetLength();
+		auto p = new char[len];
+		f.Read(p, len);
+
+		Json::Value root;
+		Json::Reader reader;
+		if (reader.parse(p, p + len, root)) {
+			m_putty_path.SetWindowTextW(A2W(root["putty"].asCString()));
+			m_chk_show_pwd.SetCheck(root["show_pwd"].asInt());
+
+			auto& data = root["data"];
+			parseFolderAndCreate(data["folders"], m_root_item);
+			parseSessionAndCreate(data["sessions"], m_root_item);
+
+			delete[] p;
+			return;
+		}
+
+		delete[] p;
+	}
+
+	findPutty();
+	m_chk_show_pwd.SetCheck(0);
+}
+
+void CputtylauncherMFCDlg::saveToJson()
+{
+	USES_CONVERSION;
+	Json::Value root;
+
+	CString putty_path;
+	m_putty_path.GetWindowTextW(putty_path);
+	root["putty"] = W2A(putty_path);
+	root["show_pwd"] = m_chk_show_pwd.GetCheck();
+
+	auto& data = root["data"];
+	parseTreeAndSave(m_root_item, data);
+	
+	auto content = Json::StyledWriter().write(root);
+	auto path = getDataPath() + L"\\putty_launcher.json";
+	CFile f;
+	if (f.Open(path, CFile::OpenFlags::modeWrite | CFile::OpenFlags::modeCreate)) {
+		f.Write(content.data(), content.length());
+	}
+}
+
+void CputtylauncherMFCDlg::findPutty()
+{
+	wchar_t path[MAX_PATH + 1] = { 0 };
+	SHGetSpecialFolderPathW(NULL, path, CSIDL_PROGRAM_FILES, 0);
+	CString cpath;
+	cpath.Format(L"%s\\PuTTY\\putty.exe", path);
+	if (PathFileExistsW(cpath.GetBuffer())) {
+		cpath.Format(L"\"%s\\PuTTY\\putty.exe\"", path);
+		m_putty_path.SetWindowTextW(cpath);
+	}
+}
+
+HTREEITEM CputtylauncherMFCDlg::createItem(LPCTSTR text, HTREEITEM parentItem, bool is_folder, bool expand, bool refresh, SessionPtr session)
+{
+	int nImage = is_folder ? SIID_FOLDER : SIID_SERVER;
+
+	HTREEITEM hItemAfter = TVI_LAST;
+	if (is_folder) {
+		hItemAfter = TVI_FIRST;
+		auto hItem = m_tree.GetChildItem(parentItem);
+		while (hItem) {
+			auto data = getItemData(hItem);
+			if (data && data->is_folder) {
+				hItemAfter = hItem;
+			} else {
+				break;
+			}
+
+			hItem = m_tree.GetNextSiblingItem(hItem);
+		}
+	}
+
+	std::wstring name = text;
+	if (session) {
+		name = session->name + L" (" + session->username + L"@" + session->host + L")";
+	}
+
+	auto hItem = m_tree.InsertItem(name.data(), nImage, nImage, parentItem ? parentItem : TVI_ROOT, hItemAfter);
+	m_tree_data[hItem] = std::make_shared<ItemData>(is_folder, name, session);
+
+	if (expand) {
+		m_tree.Expand(m_tree.GetParentItem(hItem), TVE_EXPAND);
+		m_tree.Expand(hItem, TVE_EXPAND);
+	}
+
+	if (refresh) {
+		m_tree.SelectItem(hItem);
+		m_tree.Invalidate();
+	}
+
+	return hItem;
+}
+
+ItemDataPtr CputtylauncherMFCDlg::getItemData(HTREEITEM hItem) const
+{
+	auto iter = m_tree_data.find(hItem);
+	if (iter != m_tree_data.end()) {
+		return iter->second;
+	}
+
+	return ItemDataPtr();
+}
+
+void CputtylauncherMFCDlg::updateConnectionString(HTREEITEM hItem)
+{
+	auto data = getItemData(hItem);
+	if (data && !data->is_folder && data->session) {
+		CString path;
+		m_putty_path.GetWindowTextW(path);
+		if (path.IsEmpty()) {
+			path = L"putty";
+		}
+		path += L" ";
+		path += data->session->connection_string(m_chk_show_pwd.GetCheck() ? true : false).data();
+		m_session_connection_string.SetWindowTextW(path);
+		m_btn_connect_session.EnableWindow();
+	} else {
+		m_session_connection_string.SetWindowTextW(L"");
+		m_btn_connect_session.EnableWindow(0);
+	}
 }
 
 void CputtylauncherMFCDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -191,6 +427,7 @@ void CputtylauncherMFCDlg::OnBnClickedCancel()
 
 void CputtylauncherMFCDlg::OnClose()
 {
+	saveToJson();
 	CDialogEx::OnCancel();
 }
 
@@ -207,19 +444,34 @@ void CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1(NMHDR *pNMHDR, LRESULT *pRes
 		TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 1\n");
 		*pResult = 1;
 	} else {
-		TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 0 m_is_editting_label true\n");
-		m_is_editting_label = true;
-		*pResult = 0;
+		auto data = getItemData(pTVDispInfo->item.hItem);
+		if (data && data->is_folder) {
+			TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 1\n");
+			*pResult = 1;
+		} else {
+			TRACE(L"CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1 0 m_is_editting_label true\n");
+			m_is_editting_label = true;
+			*pResult = 0;
+		}
 	}
 }
 
 void CputtylauncherMFCDlg::OnTvnEndlabeleditTree1(NMHDR *pNMHDR, LRESULT *pResult)
 {
+	*pResult = 0;
 	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
 	if (!pTVDispInfo->item.pszText || wcslen(pTVDispInfo->item.pszText) == 0) {
-		*pResult = 0;
+		
 	} else {
-		*pResult = 1;
+		auto data = getItemData(pTVDispInfo->item.hItem);
+		if (data) {
+			if (data->is_folder) {
+				data->name = pTVDispInfo->item.pszText;
+			} else {
+
+			}
+			*pResult = 1;
+		}
 	}
 
 	m_is_editting_label = false;
@@ -249,10 +501,11 @@ void CputtylauncherMFCDlg::OnNMRClickTree1(NMHDR *pNMHDR, LRESULT *pResult)
 		if (data->is_folder) {
 			menu.AppendMenuW(MF_STRING, AddFolder, L"Add &Folder");
 			menu.AppendMenuW(MF_STRING, AddSession, L"Add &Session");
+			menu.AppendMenuW(MF_STRING, Rename, L"&Rename");
 		}
 
 		if (hItem != m_root_item) {
-			menu.AppendMenuW(MF_STRING, Rename, L"&Rename");
+			menu.AppendMenuW(MF_STRING, Edit, L"&Edit");
 			menu.AppendMenuW(MF_STRING, Delete, L"&Delete");
 		}
 
@@ -263,6 +516,24 @@ void CputtylauncherMFCDlg::OnNMRClickTree1(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
+void CputtylauncherMFCDlg::OnNMDblclkTree1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	do {
+		CPoint pt;
+		GetCursorPos(&pt);
+		m_tree.ScreenToClient(&pt);
+		HTREEITEM hItem = m_tree.HitTest(pt);
+		if (!hItem) {
+			break;
+		}
+
+		m_cur_item = hItem;
+		OnBnClickedButtonConnectSession();
+
+	} while (0);
+
+	*pResult = 0;
+}
 
 BOOL CputtylauncherMFCDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 {
@@ -273,18 +544,29 @@ BOOL CputtylauncherMFCDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	switch (menuId) {
 		if (!m_cur_item) { break; }
 	case AddFolder:
-		createItem(L"New Folder", true, SessionPtr(), m_cur_item);
+		createItem(L"New Folder", m_cur_item, true);
 		break;
 	case AddSession:
 	{
 		CCreateSessionDlg dlg(this);
 		int ret = dlg.DoModal();
 		if (ret != IDOK)break;
-		createItem(L"", false, dlg.getSession(), m_cur_item);
+		createItem(L"", m_cur_item, false, true, true, dlg.getSession());
 	}
 		break;
 	case Rename:
 		m_tree.EditLabel(m_cur_item);
+		break;
+	case Edit:
+	{
+		auto session = getItemData(m_cur_item)->session;
+		CCreateSessionDlg dlg(this);
+		dlg.setEditMode(session);
+		int ret = dlg.DoModal();
+		if (ret != IDOK)break;
+		std::wstring text = session->name + L" (" + session->username + L"@" + session->host + L")";
+		m_tree.SetItemText(m_cur_item, text.data());
+	}
 		break;
 	case Delete:
 		break;
@@ -335,60 +617,32 @@ void CputtylauncherMFCDlg::OnTvnSelchangedTree1(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CputtylauncherMFCDlg::findPutty()
+void CputtylauncherMFCDlg::OnBnClickedCheck1()
 {
-	wchar_t path[MAX_PATH + 1] = { 0 };
-	SHGetSpecialFolderPathW(NULL, path, CSIDL_PROGRAM_FILES, 0);
-	CString cpath;
-	cpath.Format(L"%s\\PuTTY\\putty.exe", path);
-	if (PathFileExistsW(cpath.GetBuffer())) {
-		cpath.Format(L"\"%s\\PuTTY\\putty.exe\"", path);
-		m_putty_path.SetWindowTextW(cpath);
-	}
+	updateConnectionString(m_cur_item);
 }
 
-HTREEITEM CputtylauncherMFCDlg::createItem(LPCTSTR text, bool is_folder, SessionPtr session, HTREEITEM parentItem)
+void CputtylauncherMFCDlg::OnBnClickedButtonSave()
 {
-	int nImage = is_folder ? SIID_FOLDER : SIID_SERVER;
-	std::wstring name = text;
-	if (session) {
-		name = session->name + L" (" + session->username + L"@" + session->host + L")";
-	}
-	auto hItem = m_tree.InsertItem(name.data(), nImage, nImage, parentItem ? parentItem : TVI_ROOT);
-	m_tree_data[hItem] = std::make_shared<ItemData>(is_folder, name, session);
-	m_tree.Expand(m_tree.GetParentItem(hItem), TVE_EXPAND);
-	m_tree.SelectItem(hItem);
-	m_tree.Invalidate();
-
-	return hItem;
+	saveToJson();
 }
 
-ItemDataPtr CputtylauncherMFCDlg::getItemData(HTREEITEM hItem) const
+void CputtylauncherMFCDlg::OnBnClickedButtonConnectSession()
 {
-	auto iter = m_tree_data.find(hItem);
-	if (iter != m_tree_data.end()) {
-		return iter->second;
-	}
-
-	return ItemDataPtr();
-}
-
-void CputtylauncherMFCDlg::updateConnectionString(HTREEITEM hItem)
-{
-	auto data = getItemData(hItem);
+	auto data = getItemData(m_cur_item);
 	if (data && !data->is_folder && data->session) {
 		CString path;
 		m_putty_path.GetWindowTextW(path);
 		if (path.IsEmpty()) {
 			path = L"putty";
 		}
-		path += L" ";
-		path += data->session->connection_string(m_chk_show_pwd.GetCheck() ? true : false).data();
-		m_session_connection_string.SetWindowTextW(path);
+		
+		CString param = data->session->connection_string(true).data();
+
+		//USES_CONVERSION;
+		//std::system(W2A(path));
+
+		ShellExecuteW(m_hWnd, L"open", path, param, NULL, SW_SHOW);
 	}
 }
 
-void CputtylauncherMFCDlg::OnBnClickedCheck1()
-{
-	updateConnectionString(m_cur_item);
-}

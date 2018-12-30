@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <json/jsoncpp-stdafx/json.h>
+
+
 // CputtylauncherMFCDlg dialog
 class CputtylauncherMFCDlg : public CDialogEx
 {
@@ -18,6 +21,20 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+
+
+protected:
+	void initTree();
+	CString getDataPath() const;
+	void parseFolderAndCreate(Json::Value& item, HTREEITEM parentItem);
+	void parseSessionAndCreate(Json::Value& item, HTREEITEM parentItem);
+	void parseTreeAndSave(HTREEITEM hItem, Json::Value& value);
+	void loadFromJson();
+	void saveToJson();
+	void findPutty();
+	HTREEITEM createItem(LPCTSTR text, HTREEITEM parentItem = nullptr, bool is_folder = false, bool expand = true, bool refresh = true, SessionPtr session = {});
+	ItemDataPtr getItemData(HTREEITEM hItem) const;
+	void updateConnectionString(HTREEITEM hItem);
 
 
 // Implementation
@@ -39,20 +56,20 @@ protected:
 	afx_msg void OnTvnBeginlabeleditTree1(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTvnEndlabeleditTree1(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMRClickTree1(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkTree1(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTvnItemexpandedTree1(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTvnSelchangedTree1(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedCheck1();
+	afx_msg void OnBnClickedButtonSave();
+	afx_msg void OnBnClickedButtonConnectSession();
 
-protected:
-	void findPutty();
-	HTREEITEM createItem(LPCTSTR text, bool is_folder, SessionPtr session = {}, HTREEITEM parentItem = nullptr);
-	ItemDataPtr getItemData(HTREEITEM hItem) const;
-	void updateConnectionString(HTREEITEM hItem);
 
 private:
 	CEdit m_putty_path;
 	CTreeCtrl m_tree;
 	CButton m_chk_show_pwd;
 	CEdit m_session_connection_string;
+	CButton m_btn_connect_session;
 
 	HIMAGELIST m_image_list;
 	HTREEITEM m_root_item = nullptr;
@@ -61,8 +78,4 @@ private:
 
 	std::unordered_map<HTREEITEM, ItemDataPtr> m_tree_data = {};
 
-
-	
-public:
-	afx_msg void OnBnClickedCheck1();
 };
