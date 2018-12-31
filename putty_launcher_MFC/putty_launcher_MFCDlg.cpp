@@ -191,7 +191,18 @@ void CputtylauncherMFCDlg::parseSessionAndCreate(Json::Value & sessions, HTREEIT
 			CString port = A2W(session["port"].asCString());
 			CString type = A2W(session["type"].asCString());
 			CString username = A2W(session["username"].asCString());
+
+			CString authtype = L"pwd";
+			if (session.isMember("authtype")) {
+				A2W(session["authtype"].asCString());
+			}
+
 			CString password = A2W(session["password"].asCString());
+
+			CString ppkpath = L"";
+			if (session.isMember("ppkpath")) {
+				A2W(session["ppkpath"].asCString());
+			}
 
 			auto ss = std::make_shared<Session>();
 			ss->name = name.GetBuffer();
@@ -199,7 +210,9 @@ void CputtylauncherMFCDlg::parseSessionAndCreate(Json::Value & sessions, HTREEIT
 			ss->port = port.GetBuffer();
 			ss->type = type.GetBuffer();
 			ss->username = username.GetBuffer();
+			ss->authtype = authtype.GetBuffer();
 			ss->password = password.GetBuffer();
+			ss->ppkpath = ppkpath.GetBuffer();
 
 			createItem(name, parentItem, false, false, false, ss);
 		}
@@ -231,7 +244,9 @@ void CputtylauncherMFCDlg::parseTreeAndSave(HTREEITEM parentItem, Json::Value & 
 			session["port"] = W2A(ss->port.data());
 			session["type"] = W2A(ss->type.data());
 			session["username"] = W2A(ss->username.data());
+			session["authtype"] = W2A(ss->authtype.data());
 			session["password"] = W2A(ss->password.data());
+			session["ppkpath"] = W2A(ss->ppkpath.data());
 			sessions.append(session);
 		}
 
@@ -566,6 +581,7 @@ BOOL CputtylauncherMFCDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		if (ret != IDOK)break;
 		std::wstring text = session->name + L" (" + session->username + L"@" + session->host + L")";
 		m_tree.SetItemText(m_cur_item, text.data());
+		updateConnectionString(m_cur_item);
 	}
 		break;
 	case Delete:

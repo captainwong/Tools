@@ -42,14 +42,23 @@ struct Session {
 	std::wstring port = {};
 	std::wstring type = {};
 	std::wstring username = {};
+	std::wstring authtype = {};
 	std::wstring password = {};
+	std::wstring ppkpath = {};
 
 	// like: " -ssh root@somewhere.com -pw mypasswordforsomewherecom -P 22"
 	std::wstring connection_string(bool show_pwd = false) const {
-		return std::wstring(L" -") + type + L" "
+		std::wstring str = (L" -") + type + L" "
 			+ username + L"@" + host
-			+ L" -pw " + (show_pwd ? password : L"********")
 			+ L" -P " + port;
+
+		if (authtype == L"ppk") {
+			str += L" -i " + ppkpath;
+		} else {
+			str += L" -pw " + (show_pwd ? password : L"********");
+		}
+
+		return str;
 	}
 };
 typedef std::shared_ptr<Session> SessionPtr;

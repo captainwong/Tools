@@ -25,6 +25,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnBnClickedOk();
 
+	afx_msg void OnBnClickedRadioAuthPwd();
+	afx_msg void OnBnClickedRadioAuthPpk();
 private:
 	SessionPtr session = {};
 	CEdit m_name;
@@ -33,4 +35,10 @@ private:
 	CButton m_radio_ssh;
 	CEdit m_user;
 	CEdit m_passwd;
+	CEdit m_ppk;
+	CButton m_btn_ppk;
+	CButton m_radio_pwd;
+	CButton m_radio_ppk;
+public:
+	afx_msg void OnBnClickedButtonPpk();
 };
