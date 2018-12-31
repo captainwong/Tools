@@ -20,6 +20,7 @@ enum MenuId {
 	AddFolder = WM_USER + 1,
 	AddSession,
 	Rename,
+	Connect,
 	Edit,
 	Delete,
 
@@ -517,10 +518,12 @@ void CputtylauncherMFCDlg::OnNMRClickTree1(NMHDR *pNMHDR, LRESULT *pResult)
 			menu.AppendMenuW(MF_STRING, AddFolder, L"Add &Folder");
 			menu.AppendMenuW(MF_STRING, AddSession, L"Add &Session");
 			menu.AppendMenuW(MF_STRING, Rename, L"&Rename");
+		} else {
+			menu.AppendMenuW(MF_STRING, Connect, L"&Connect");
+			menu.AppendMenuW(MF_STRING, Edit, L"&Edit");
 		}
 
 		if (hItem != m_root_item) {
-			menu.AppendMenuW(MF_STRING, Edit, L"&Edit");
 			menu.AppendMenuW(MF_STRING, Delete, L"&Delete");
 		}
 
@@ -571,6 +574,9 @@ BOOL CputtylauncherMFCDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	case Rename:
 		m_tree.EditLabel(m_cur_item);
+		break;
+	case Connect:
+		OnBnClickedButtonConnectSession();
 		break;
 	case Edit:
 	{
