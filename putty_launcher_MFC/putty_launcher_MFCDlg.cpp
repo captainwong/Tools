@@ -9,7 +9,7 @@
 #include "CreateSessionDlg.h"
 #include <Shlwapi.h>  
 #pragma comment(lib, "shlwapi.lib")  //Windows API   PathFileExists  
-
+#include <Global/jlib/win32/file_op.h>
 
 
 #ifdef _DEBUG
@@ -449,7 +449,18 @@ void CputtylauncherMFCDlg::OnClose()
 
 void CputtylauncherMFCDlg::OnBnClickedButton1()
 {
+	std::wstring path;
+	COMDLG_FILTERSPEC cf[2] = {};
+	cf[0].pszName = L"Exe Files";
+	cf[0].pszSpec = L"*.exe";
+	cf[1].pszName = L"All Files";
+	cf[1].pszSpec = L"*.*";
 
+	if (jlib::get_file_open_dialog_result(path, m_hWnd, L"", L"exe", 2, cf)) {
+		path.insert(0, 1, L'\"');
+		path.push_back(L'\"');
+		m_putty_path.SetWindowTextW(path.data());
+	}
 }
 
 void CputtylauncherMFCDlg::OnTvnBeginlabeleditTree1(NMHDR *pNMHDR, LRESULT *pResult)

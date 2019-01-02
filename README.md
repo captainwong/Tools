@@ -24,7 +24,6 @@ A small tool calls `putty` with `username`/`password` or `ppk`, and can store se
 
 ### Todo
 
-* Change `putty`'s location
 * Delete folder/session
 * Move folder/session
 * Password encryption
