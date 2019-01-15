@@ -27,3 +27,7 @@ A small tool calls `putty` with `username`/`password` or `ppk`, and can store se
 * Delete folder/session
 * Move folder/session
 * Password encryption
+
+## turn-off-screen
+
+Windows only. Turn off screen when you don't want to shutdown/sleep/hybernate, just turn off screen(s).
