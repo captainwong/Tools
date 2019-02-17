@@ -195,14 +195,14 @@ void CputtylauncherMFCDlg::parseSessionAndCreate(Json::Value & sessions, HTREEIT
 
 			CString authtype = L"pwd";
 			if (session.isMember("authtype")) {
-				A2W(session["authtype"].asCString());
+				authtype = A2W(session["authtype"].asCString());
 			}
 
 			CString password = A2W(session["password"].asCString());
 
 			CString ppkpath = L"";
 			if (session.isMember("ppkpath")) {
-				A2W(session["ppkpath"].asCString());
+				ppkpath = A2W(session["ppkpath"].asCString());
 			}
 
 			auto ss = std::make_shared<Session>();
