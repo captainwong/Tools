@@ -47,7 +47,7 @@ bool validator_for_c_cpp(const fs::path& path)
 	auto ext = path.extension().string();
 	if (!ext.empty()) {
 		ext = ext.substr(1);
-		std::transform(ext.begin(), ext.end(), ext.begin(), std::tolower);//[](char c) { return static_cast<char>(std::tolower(c)); }
+		std::transform(ext.begin(), ext.end(), std::back_inserter(ext), ::tolower);//[](char c) { return static_cast<char>(std::tolower(c)); }
 		if (jlib::is_contain(valid_exts, ext)) {
 			return true;
 		}

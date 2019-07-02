@@ -10,9 +10,9 @@
 #include <cryptopp/hex.h>
 
 #ifdef _DEBUG
-#pragma comment(lib, "E:\\dev_libs\\cryptopp563\\cryptopp\\Win32\\Output\\DebugMDD\\cryptlib.lib")
+#pragma comment(lib, "F:\\dev_libs\\cryptopp563\\cryptopp\\Win32\\Output\\DebugMDD\\cryptlib.lib")
 #else
-#pragma comment(lib, "E:\\dev_libs\\cryptopp563\\cryptopp\\Win32\\Output\\ReleaseMd\\cryptlib.lib")
+#pragma comment(lib, "F:\\dev_libs\\cryptopp563\\cryptopp\\Win32\\Output\\ReleaseMd\\cryptlib.lib")
 #endif // _DEBUG
 
 

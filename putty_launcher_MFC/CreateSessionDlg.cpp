@@ -56,17 +56,17 @@ BOOL CCreateSessionDlg::OnInitDialog()
 	OnBnClickedRadioAuthPwd();
 
 	if (session) {
-		m_name.SetWindowTextW(session->name.data());
-		m_host.SetWindowTextW(session->host.data());
-		m_port.SetWindowTextW(session->port.data());
-		m_user.SetWindowTextW(session->username.data());
+		m_name.SetWindowText(session->name.data());
+		m_host.SetWindowText(session->host.data());
+		m_port.SetWindowText(session->port.data());
+		m_user.SetWindowText(session->username.data());
 
-		if (session->authtype == L"ppk") {
-			m_ppk.SetWindowTextW(session->ppkpath.data());
+		if (session->authtype == _T("ppk")) {
+			m_ppk.SetWindowText(session->ppkpath.data());
 			m_radio_ppk.SetCheck(1);
 			OnBnClickedRadioAuthPpk();
 		} else {
-			m_passwd.SetWindowTextW(session->password.data());
+			m_passwd.SetWindowText(session->password.data());
 		}
 	}
 
@@ -81,15 +81,15 @@ BOOL CCreateSessionDlg::OnInitDialog()
 void CCreateSessionDlg::OnBnClickedOk()
 {
 	CString name, host, port, user, pass, ppk;
-	m_name.GetWindowTextW(name);
-	m_host.GetWindowTextW(host);
-	m_port.GetWindowTextW(port);
-	m_user.GetWindowTextW(user);
-	m_passwd.GetWindowTextW(pass);
-	m_ppk.GetWindowTextW(ppk);
+	m_name.GetWindowText(name);
+	m_host.GetWindowText(host);
+	m_port.GetWindowText(port);
+	m_user.GetWindowText(user);
+	m_passwd.GetWindowText(pass);
+	m_ppk.GetWindowText(ppk);
 
 	if (name.IsEmpty() || host.IsEmpty() || port.IsEmpty() || user.IsEmpty()) {
-		MessageBoxW(L"Can't be empty!", L"Error", MB_ICONERROR);
+		MessageBox(_T("Can't be empty!"), _T("Error"), MB_ICONERROR);
 		return;
 	}
 
@@ -100,9 +100,9 @@ void CCreateSessionDlg::OnBnClickedOk()
 	session->name = name.GetBuffer();
 	session->host = host.GetBuffer();
 	session->port = port.GetBuffer();
-	session->type = L"ssh";
+	session->type = _T("ssh");
 	session->username = user.GetBuffer();
-	session->authtype = m_radio_ppk.GetCheck() ? L"ppk" : L"pwd";
+	session->authtype = m_radio_ppk.GetCheck() ? _T("ppk") : _T("pwd");
 	session->password = pass.GetBuffer();
 	session->ppkpath = ppk.GetBuffer();
 
@@ -136,5 +136,5 @@ void CCreateSessionDlg::OnBnClickedButtonPpk()
 		return;
 	}
 
-	m_ppk.SetWindowTextW((L"\"" + path + L"\"").data());
+	m_ppk.SetWindowText(((L"\"" + path + L"\"").data()));
 }

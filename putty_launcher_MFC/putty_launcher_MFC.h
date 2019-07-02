@@ -35,27 +35,28 @@ public:
 extern CPuttyLauncherMFCApp theApp;
 
 
+typedef std::wstring String;
 
 struct Session {
-	std::wstring name = {};
-	std::wstring host = {};
-	std::wstring port = {};
-	std::wstring type = {};
-	std::wstring username = {};
-	std::wstring authtype = {};
-	std::wstring password = {};
-	std::wstring ppkpath = {};
+	String name = {};
+	String host = {};
+	String port = {};
+	String type = {};
+	String username = {};
+	String authtype = {};
+	String password = {};
+	String ppkpath = {};
 
 	// like: " -ssh root@somewhere.com -pw mypasswordforsomewherecom -P 22"
-	std::wstring connection_string(bool show_pwd = false) const {
-		std::wstring str = (L" -") + type + L" "
-			+ username + L"@" + host
-			+ L" -P " + port;
+	String connection_string(bool show_pwd = false) const {
+		String str = (_T(" -")) + type + _T(" ")
+			+ username + _T("@") + host
+			+ _T(" -P ") + port;
 
-		if (authtype == L"ppk") {
-			str += L" -i " + ppkpath;
+		if (authtype == _T("ppk")) {
+			str += _T(" -i ") + ppkpath;
 		} else {
-			str += L" -pw " + (show_pwd ? password : L"********");
+			str += _T(" -pw ") + (show_pwd ? password : _T("********"));
 		}
 
 		return str;
@@ -65,10 +66,10 @@ typedef std::shared_ptr<Session> SessionPtr;
 
 struct ItemData {
 	bool is_folder = false;
-	std::wstring name = {};
+	String name = {};
 	SessionPtr session = {};
 
-	ItemData(bool is_folder = false, const std::wstring& name = L"", SessionPtr session = {})
+	ItemData(bool is_folder = false, const String& name = _T(""), SessionPtr session = {})
 		: is_folder(is_folder)
 		, name(name)
 		, session(session)
