@@ -9,8 +9,8 @@
 #include "CreateSessionDlg.h"
 #include <Shlwapi.h>  
 #pragma comment(lib, "shlwapi.lib")  //Windows API   PathFileExists  
-#include <Global/jlib/win32/file_op.h>
-#include <Global/jlib/utf8.h>
+#include <jlib/jlib/win32/file_op.h>
+#include <jlib/jlib/utf8.h>
 
 
 #ifdef _DEBUG
@@ -244,6 +244,11 @@ void CputtylauncherMFCDlg::parseTreeAndSave(HTREEITEM parentItem, Json::Value & 
 		} else {
 			const auto& ss = data->session;
 			Json::Value session;
+
+#define saveKey(key) session[#key] = MY_W2A(ss->key.data());
+
+			//saveKey(name);
+
 			session["name"] = MY_W2A(ss->name.data());
 			session["host"] = MY_W2A(ss->host.data());
 			session["port"] = MY_W2A(ss->port.data());

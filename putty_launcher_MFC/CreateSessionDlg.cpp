@@ -5,7 +5,7 @@
 #include "putty_launcher_MFC.h"
 #include "CreateSessionDlg.h"
 #include "afxdialogex.h"
-#include <Global/jlib/win32/file_op.h>
+#include <jlib/jlib/win32/file_op.h>
 
 // CCreateSessionDlg dialog
 

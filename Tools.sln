@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29201.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bom", "bom\bom.vcxproj", "{8A4299DC-6D06-4AF8-B7D9-19F960253243}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gpuz-shm-reader", "gpuz-shm-reader\gpuz-shm-reader.vcxproj", "{BB0F8330-CD67-4426-B117-D44A29AEC7D6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "md5", "md5\md5.vcxproj", "{C45A86C7-3AD2-4D11-B663-E250215624FE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileExplorerHelper", "FileExplorerHelper\FileExplorerHelper.vcxproj", "{62045AD1-A739-4D59-80CC-EC66D00E2077}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,14 @@ Global
 		{C45A86C7-3AD2-4D11-B663-E250215624FE}.Release|x64.Build.0 = Release|x64
 		{C45A86C7-3AD2-4D11-B663-E250215624FE}.Release|x86.ActiveCfg = Release|Win32
 		{C45A86C7-3AD2-4D11-B663-E250215624FE}.Release|x86.Build.0 = Release|Win32
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Debug|x64.ActiveCfg = Debug|x64
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Debug|x64.Build.0 = Debug|x64
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Debug|x86.ActiveCfg = Debug|Win32
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Debug|x86.Build.0 = Debug|Win32
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Release|x64.ActiveCfg = Release|x64
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Release|x64.Build.0 = Release|x64
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Release|x86.ActiveCfg = Release|Win32
+		{62045AD1-A739-4D59-80CC-EC66D00E2077}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

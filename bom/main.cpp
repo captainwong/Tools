@@ -7,7 +7,7 @@
 #include <cctype>
 #include <sstream>
 
-#include <Global/jlib/std_util.h>
+#include <jlib/jlib/std_util.h>
 
 using namespace std;
 namespace fs = std::experimental::filesystem;
