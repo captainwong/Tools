@@ -31,7 +31,7 @@ Usage:  `md5 [source-string]`
 
 ![img](https://github.com/captainwong/Tools/blob/master/putty_launcher_MFC/putty_launcher_MFC.png?raw=true)
 
-A small tool stores sessions in folders, calls `putty` with `username`/`password` or `ppk`.
+A small tool stores sessions in file and calls `putty` with `username`/`password` or `ppk`. 
 
 ### Todo
 
