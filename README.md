@@ -41,4 +41,4 @@ A small tool stores sessions in folders, calls `putty` with `username`/`password
 
 ## turn-off-screen
 
-Turn off screen when you don't want to shutdown/sleep/hybernate, just turn off screen(s).
+Turn off screen when you don't want to shutdown/sleep/hibernate, just turn off screen(s).
