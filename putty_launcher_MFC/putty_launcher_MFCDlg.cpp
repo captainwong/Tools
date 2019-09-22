@@ -21,11 +21,13 @@ enum MenuId {
 	AddFolder = WM_USER + 1,
 	AddSession,
 	Rename,
+	Ping,
 	Connect,
 	Edit,
 	Delete,
 
 };
+
 
 #define MY_A2W(s) utf8::a2w(s).data()
 #define MY_W2A utf8::w2a
@@ -541,6 +543,7 @@ void CputtylauncherMFCDlg::OnNMRClickTree1(NMHDR *pNMHDR, LRESULT *pResult)
 			menu.AppendMenu(MF_STRING, AddSession, _T("Add &Session"));
 			menu.AppendMenu(MF_STRING, Rename, _T("&Rename"));
 		} else {
+			menu.AppendMenu(MF_STRING, Ping, _T("&Ping"));
 			menu.AppendMenu(MF_STRING, Connect, _T("&Connect"));
 			menu.AppendMenu(MF_STRING, Edit, _T("&Edit"));
 		}
@@ -597,6 +600,15 @@ BOOL CputtylauncherMFCDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	case Rename:
 		m_tree.EditLabel(m_cur_item);
 		break;
+	case Ping:
+	{
+		auto data = getItemData(m_cur_item);
+		if (data && !data->is_folder && data->session) {
+			ShellExecuteW(NULL, NULL, L"cmd", (L"/C ping " + data->session->host + L" -t").data(), NULL, SW_SHOWNORMAL);
+		}
+	}
+		break;
+
 	case Connect:
 		OnBnClickedButtonConnectSession();
 		break;
