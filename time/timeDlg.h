@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include <vector>
 
 // CtimeDlg dialog
 class CtimeDlg : public CDialogEx
@@ -24,9 +24,7 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
-	bool ticking_ = false;
 
-	void updateTime();
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
@@ -35,20 +33,10 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	CDateTimeCtrl m_date;
-	CDateTimeCtrl m_time;
-	CEdit m_time_t;
-	CEdit m_time_ms;
-	CEdit m_time_us;
-	afx_msg void OnBnClickedButton1();
-	afx_msg void OnDtnDatetimechangeDatetimepickerDate(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnDtnDatetimechangeDatetimepickerTime(NMHDR* pNMHDR, LRESULT* pResult);
-	CEdit m_cur_local;
-	CEdit m_cur_sys;
-	CEdit m_cur_s;
-	CEdit m_cur_ms;
-	CEdit m_cur_us;
-	CButton m_cur_tick;
-	afx_msg void OnBnClickedCheck1();
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
+
+	CTabCtrl m_tab;
+
+	std::vector<CDialogEx*> dlgs = {};
+	int cursel = 0;
+	afx_msg void OnTcnSelchangeTab(NMHDR* pNMHDR, LRESULT* pResult);
 };

@@ -9,5 +9,11 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
+#include <afxcontrolbars.h>
+#include <afxcontrolbars.h>
+#include <jlib/base/time.h>
+#include <string>
+#include <afxcontrolbars.h>
+#include <afxcontrolbars.h>
 
 #endif //PCH_H

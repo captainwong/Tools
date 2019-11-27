@@ -7,8 +7,10 @@
 #include "time.h"
 #include "timeDlg.h"
 #include "afxdialogex.h"
-#include <jlib/base/time.h>
-#include <string>
+#include "CurrentTimeDlg.h"
+#include "ToTimestampDlg.h"
+#include "FromTimestampDlg.h"
+#include "CalcDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -62,59 +64,18 @@ CtimeDlg::CtimeDlg(CWnd* pParent /*=nullptr*/)
 void CtimeDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_DATETIMEPICKER1, m_date);
-	DDX_Control(pDX, IDC_DATETIMEPICKER2, m_time);
-	DDX_Control(pDX, IDC_EDIT1, m_time_t);
-	DDX_Control(pDX, IDC_EDIT2, m_time_ms);
-	DDX_Control(pDX, IDC_EDIT3, m_time_us);
-	DDX_Control(pDX, IDC_EDIT7, m_cur_local);
-	DDX_Control(pDX, IDC_EDIT8, m_cur_sys);
-	DDX_Control(pDX, IDC_EDIT4, m_cur_s);
-	DDX_Control(pDX, IDC_EDIT5, m_cur_ms);
-	DDX_Control(pDX, IDC_EDIT6, m_cur_us);
-	DDX_Control(pDX, IDC_CHECK1, m_cur_tick);
+	DDX_Control(pDX, IDC_TAB1, m_tab);
 }
 
 BEGIN_MESSAGE_MAP(CtimeDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON1, &CtimeDlg::OnBnClickedButton1)
-	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIMEPICKER1, &CtimeDlg::OnDtnDatetimechangeDatetimepickerDate)
-	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIMEPICKER2, &CtimeDlg::OnDtnDatetimechangeDatetimepickerTime)
-	ON_BN_CLICKED(IDC_CHECK1, &CtimeDlg::OnBnClickedCheck1)
-	ON_WM_TIMER()
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &CtimeDlg::OnTcnSelchangeTab)
 END_MESSAGE_MAP()
 
 
 // CtimeDlg message handlers
-
-void CtimeDlg::updateTime()
-{
-	/*SYSTEMTIME date, time;
-	m_date.GetTime(&date);
-	m_time.GetTime(&time);
-	date.wHour = time.wHour;
-	date.wMinute = time.wMinute;
-	date.wSecond = time.wSecond;
-	date.wMilliseconds = time.wMilliseconds;*/
-
-	COleDateTime date, time;
-	m_date.GetTime(date); m_time.GetTime(time);
-	//date.SetTime(time.GetHour(), time.GetMinute(), time.GetSecond());
-	time.SetDateTime(date.GetYear(), date.GetMonth(), date.GetDay(), time.GetHour(), time.GetMinute(), time.GetSecond());
-	
-	SYSTEMTIME st;
-	time.GetAsSystemTime(st);
-
-	time_t s = jlib::systemTimeToTime_t(st);
-	time_t ms = s * 1000;
-	time_t us = ms * 1000;
-
-	m_time_t.SetWindowTextW(std::to_wstring(s).data());
-	m_time_ms.SetWindowTextW(std::to_wstring(ms).data());
-	m_time_us.SetWindowTextW(std::to_wstring(us).data());
-}
 
 BOOL CtimeDlg::OnInitDialog()
 {
@@ -146,8 +107,48 @@ BOOL CtimeDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	m_cur_tick.SetCheck(1);
-	OnBnClickedCheck1();
+
+	CRect rc;
+	m_tab.GetClientRect(rc);
+	rc.top += 25;
+	rc.bottom -= 5;
+	rc.left += 5;
+	rc.right -= 5;
+
+	m_tab.InsertItem(0, L"Current");
+	{
+		auto dlg = new CurrentTimeDlg();
+		dlg->Create(IDD_DIALOG_CURRENT_TIME, &m_tab);
+		dlg->MoveWindow(rc);
+		dlgs.push_back(dlg);
+	}
+
+	m_tab.InsertItem(1, L"ToTimestamp");
+	{
+		auto dlg = new ToTimestampDlg();
+		dlg->Create(IDD_DIALOG_TO_TIMESTAMP, &m_tab);
+		dlg->MoveWindow(rc);
+		dlgs.push_back(dlg);
+	}
+
+	m_tab.InsertItem(2, L"FromTimestamp");
+	{
+		auto dlg = new FromTimestampDlg();
+		dlg->Create(IDD_DIALOG_FROM_TIMESTAMP, &m_tab);
+		dlg->MoveWindow(rc);
+		dlgs.push_back(dlg);
+	}
+
+	m_tab.InsertItem(3, L"Calc");
+	{
+		auto dlg = new CalcDlg();
+		dlg->Create(IDD_DIALOG_CALC, &m_tab);
+		dlg->MoveWindow(rc);
+		dlgs.push_back(dlg);
+	}
+
+
+	dlgs[cursel]->ShowWindow(SW_SHOW);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -201,68 +202,12 @@ HCURSOR CtimeDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
-void CtimeDlg::OnBnClickedButton1()
+void CtimeDlg::OnTcnSelchangeTab(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	auto us = jlib::gettimeofdayUsec();
-	COleDateTime date = COleDateTime::GetTickCount();
-	m_date.SetTime(date);
-	m_time.SetTime(date);
-	updateTime();
-	m_time_ms.SetWindowTextW(std::to_wstring(us / 1000).data());
-	m_time_us.SetWindowTextW(std::to_wstring(us).data());
-}
-
-
-void CtimeDlg::OnDtnDatetimechangeDatetimepickerDate(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	LPNMDATETIMECHANGE pDTChange = reinterpret_cast<LPNMDATETIMECHANGE>(pNMHDR);
-	// TODO: Add your control notification handler code here
-	
-	updateTime();
+	dlgs[cursel]->ShowWindow(SW_HIDE);
+	cursel = m_tab.GetCurSel();
+	dlgs[cursel]->ShowWindow(SW_SHOW);
 
 	*pResult = 0;
 }
 
-
-void CtimeDlg::OnDtnDatetimechangeDatetimepickerTime(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	LPNMDATETIMECHANGE pDTChange = reinterpret_cast<LPNMDATETIMECHANGE>(pNMHDR);
-	// TODO: Add your control notification handler code here
-	updateTime();
-	*pResult = 0;
-}
-
-
-void CtimeDlg::OnBnClickedCheck1()
-{
-	ticking_ = m_cur_tick.GetCheck() ? true : false;
-	if (ticking_) {
-		SetTimer(1, 1, nullptr);
-	} else {
-		KillTimer(1);
-	}
-}
-
-
-void CtimeDlg::OnTimer(UINT_PTR nIDEvent)
-{
-	SYSTEMTIME time;
-	GetLocalTime(&time);
-
-	CString s;
-	s.Format(L"%4d-%02d-%02d %02d:%02d:%02d", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
-	m_cur_local.SetWindowTextW(s);
-
-	GetSystemTime(&time);
-	s.Format(L"%4d-%02d-%02d %02d:%02d:%02d", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
-	m_cur_sys.SetWindowTextW(s);
-
-	auto us = jlib::gettimeofdayUsec();
-	m_cur_s.SetWindowTextW(std::to_wstring(us / jlib::MICRO_SECONDS_PER_SECOND).data());
-	m_cur_ms.SetWindowTextW(std::to_wstring(us / 1000).data());
-	m_cur_us.SetWindowTextW(std::to_wstring(us).data());
-
-	CDialogEx::OnTimer(nIDEvent);
-}
