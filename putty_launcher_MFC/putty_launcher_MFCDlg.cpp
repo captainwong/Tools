@@ -468,7 +468,7 @@ void CputtylauncherMFCDlg::OnBnClickedButton1()
 	cf[1].pszName = L"All Files";
 	cf[1].pszSpec = L"*.*";
 
-	if (jlib::get_file_open_dialog_result(path, m_hWnd, L"", L"exe", 2, cf)) {
+	if (jlib::win32::getOpenFileDialogResult(path, m_hWnd, L"", L"exe", 2, cf)) {
 		path.insert(0, 1, L'\"');
 		path.push_back(L'\"');
 		m_putty_path.SetWindowText((path.data()));

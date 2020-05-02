@@ -36,7 +36,6 @@ struct GPUZ_SH_MEM
 #define BUF_SIZE (sizeof(GPUZ_SH_MEM))
 
 
-
 int main()
 {
 	HANDLE hMapFile;

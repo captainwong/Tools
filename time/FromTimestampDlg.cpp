@@ -6,7 +6,6 @@
 #include "FromTimestampDlg.h"
 #include "afxdialogex.h"
 
-
 // FromTimestampDlg dialog
 
 IMPLEMENT_DYNAMIC(FromTimestampDlg, CDialogEx)

@@ -15,5 +15,6 @@
 #include <string>
 #include <afxcontrolbars.h>
 #include <afxcontrolbars.h>
+#include <assert.h>
 
 #endif //PCH_H

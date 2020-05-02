@@ -26,5 +26,5 @@ Now every putty session will look the same as you configured.
 
 * Delete folder/session
 * Move folder/session
-* Password encryption
+* Encryption
 

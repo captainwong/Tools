@@ -132,7 +132,7 @@ void CCreateSessionDlg::OnBnClickedButtonPpk()
 	cf[0].pszSpec = L"*.ppk";
 	cf[1].pszName = L"All Files";
 	cf[1].pszSpec = L"*.*";
-	if (!jlib::get_file_open_dialog_result(path, m_hWnd, L"", L"ppk", 2, cf)) {
+	if (!jlib::win32::getOpenFileDialogResult(path, m_hWnd, L"", L"ppk", 2, cf)) {
 		return;
 	}
 
