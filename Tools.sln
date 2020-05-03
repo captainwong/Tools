@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HashTool", "HashTool\HashTo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pwdgen", "pwdgen\pwdgen.vcxproj", "{B97ACA14-B7E6-4705-9271-4704591CF0B1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AddVersion", "AddVersion\AddVersion.vcxproj", "{5D85033F-D022-48A6-AC55-A7CC06706C7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -167,6 +169,16 @@ Global
 		{B97ACA14-B7E6-4705-9271-4704591CF0B1}.Release|x64.Build.0 = Release|x64
 		{B97ACA14-B7E6-4705-9271-4704591CF0B1}.Release|x86.ActiveCfg = Release|Win32
 		{B97ACA14-B7E6-4705-9271-4704591CF0B1}.Release|x86.Build.0 = Release|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Debug|ARM.ActiveCfg = Debug|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Debug|x64.ActiveCfg = Debug|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Debug|x86.ActiveCfg = Debug|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Debug|x86.Build.0 = Debug|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Release|ARM.ActiveCfg = Release|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Release|ARM64.ActiveCfg = Release|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Release|x64.ActiveCfg = Release|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Release|x86.ActiveCfg = Release|Win32
+		{5D85033F-D022-48A6-AC55-A7CC06706C7E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
