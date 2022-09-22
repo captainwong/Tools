@@ -19,6 +19,7 @@
 #define IDC_BUTTON_CONNECT_SESSION      1005
 #define IDC_EDIT6                       1006
 #define IDC_CHECK1                      1007
+#define IDC_RADIO2                      1007
 #define IDC_BUTTON_SAVE                 1008
 #define IDC_MFCLINK1                    1009
 #define IDC_MFCLINK2                    1010
