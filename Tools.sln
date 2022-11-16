@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pwm", "pwm\pwm.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "urlencode", "urlencode\urlencode.vcxproj", "{30194A69-91FD-4A06-BDC7-CF13966F2DA4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "the_martian", "the_martian\the_martian.vcxproj", "{0BFB4466-2A7A-49C3-96C7-A25A17E05826}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -207,6 +209,18 @@ Global
 		{30194A69-91FD-4A06-BDC7-CF13966F2DA4}.Release|x64.Build.0 = Release|x64
 		{30194A69-91FD-4A06-BDC7-CF13966F2DA4}.Release|x86.ActiveCfg = Release|Win32
 		{30194A69-91FD-4A06-BDC7-CF13966F2DA4}.Release|x86.Build.0 = Release|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Debug|ARM.ActiveCfg = Debug|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Debug|x64.ActiveCfg = Debug|x64
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Debug|x64.Build.0 = Debug|x64
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Debug|x86.ActiveCfg = Debug|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Debug|x86.Build.0 = Debug|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Release|ARM.ActiveCfg = Release|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Release|ARM64.ActiveCfg = Release|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Release|x64.ActiveCfg = Release|x64
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Release|x64.Build.0 = Release|x64
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Release|x86.ActiveCfg = Release|Win32
+		{0BFB4466-2A7A-49C3-96C7-A25A17E05826}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
