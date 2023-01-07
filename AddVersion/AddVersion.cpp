@@ -21,8 +21,10 @@ copy "%1VersionNo.ini" "%2VersionNo.ini"
 */
 
 int do_pattern(const TCHAR* file_path, const char* pattern, const char* shed,
-	int inc_pos, int inc_by);
-// e.g. major 1
+	int inc_pos, int inc_by, char* old_version, int old_vlen);
+
+
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//TCHAR ab[] = "003f\x22abc";// hengbo - bo\x22abcdef\x5b\x5d - 03 - 02 - 11\x0a";
@@ -80,8 +82,22 @@ int _tmain(int argc, _TCHAR* argv[])
 		//const TCHAR* i_file = L"D:/AlarmCenterNet/AlarmCenter/versionno.ini";
 		//TCHAR snumber[32] = { 0 };
 		//_itoa_s(number, snumber, 32, 10);
-		do_pattern(h_file, pattern, ",", inc_pos, number);
-		do_pattern(i_file, pattern, ".", inc_pos, number);
+		char old_ver[128] = { 0 };
+		do_pattern(h_file, pattern, ",", inc_pos, number, old_ver, sizeof(old_ver));
+		//do_pattern(i_file, pattern, ".", inc_pos, number);
+
+		do {
+			FILE* file = NULL;
+			_tfopen_s(&file, i_file, L"wb");
+			if (file == NULL) {
+				wprintf(L"open '%s' failed\n", i_file);
+				break;
+			}
+			printf("ini new version: %s\n", old_ver);
+			fwrite(old_ver, sizeof(char), strlen(old_ver), file);
+			fflush(file);
+			fclose(file);
+		} while (0);
 
 		return 0;
 	} while (0);
@@ -100,7 +116,7 @@ number: add by number, 1~100 for version increment, 0 for version decrement 1.\r
 	return 0;
 }
 
-int do_pattern(const TCHAR* file_path, const char* pattern, const char* shed, int inc_pos, int inc_by)
+int do_pattern(const TCHAR* file_path, const char* pattern, const char* shed, int inc_pos, int inc_by, char* old_version, int old_vlen)
 {
 	int oplen = 0;
 	FILE *file = NULL;
@@ -115,7 +131,7 @@ int do_pattern(const TCHAR* file_path, const char* pattern, const char* shed, in
 	oplen = fread_s(buffer, (length + 1) * sizeof(char), 1, length, file);
 	fclose(file);
 
-	static CRegexpT <char> regexp;
+	CRegexpT <char> regexp;
 	regexp.Compile(pattern);
 	MatchResult result = regexp.Match(buffer);
 	while (result.IsMatched()) {
@@ -145,6 +161,11 @@ int do_pattern(const TCHAR* file_path, const char* pattern, const char* shed, in
 		int number3 = atoi(group3);
 		int number4 = atoi(group4);
 
+		if (old_version) {
+			snprintf(old_version, old_vlen, "%d.%d.%d.%d\n", number1, number2, number3, number4);
+			printf("old version: %s\n", old_version);
+		}
+
 		char* result_content = new char[content_len * 2];
 		memset(result_content, 0, content_len * 2);
 		if (inc_pos == 1) {
@@ -163,7 +184,7 @@ int do_pattern(const TCHAR* file_path, const char* pattern, const char* shed, in
 		sprintf_s(result_content, content_len * 2, "%d%s%d%s%d%s%d",
 			number1, shed, number2, shed,
 			number3, shed, number4);
-		printf_s("new version: %s\n", result_content);
+		printf_s("header new version: %s\n", result_content);
 
 		char* content = regexp.Replace(buffer, result_content);
 		delete[] result_content;
