@@ -63,9 +63,12 @@ protected:
 	afx_msg void OnBnClickedButtonSave();
 	afx_msg void OnBnClickedButtonConnectSession();
 
+	void reboot_session();
+	void shutdown_session();
 
 private:
 	CEdit m_putty_path;
+	CString m_plink_path;
 	CTreeCtrl m_tree;
 	CButton m_chk_show_pwd;
 	CEdit m_session_connection_string;

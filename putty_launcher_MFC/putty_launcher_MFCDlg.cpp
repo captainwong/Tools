@@ -10,7 +10,7 @@
 #include <Shlwapi.h>  
 #pragma comment(lib, "shlwapi.lib")  //Windows API   PathFileExists  
 #include <jlib/jlib/win32/file_op.h>
-#include <jlib/jlib/utf8.h>
+#include <jlib/jlib/win32/UnicodeTool.h>
 
 
 #ifdef _DEBUG
@@ -23,15 +23,30 @@ enum MenuId {
 	Rename,
 	Ping,
 	Connect,
+	Reboot,
+	Shutdown,
 	Edit,
 	Delete,
 
 };
 
 
-#define MY_A2W(s) utf8::a2w(s).data()
-#define MY_W2A utf8::w2a
+#define MY_A2W(s) jlib::win32::utf8_to_utf16(s).data()
+#define MY_W2A jlib::win32::utf16_to_utf8
 
+
+static CString resolve_plink_path_by_putty_path(const CString& putty_path) {
+	int ends_with_quote = (!putty_path.IsEmpty() && putty_path.Right(1) == L"\"");
+	int pos = putty_path.ReverseFind(L'\\');
+	if (pos != -1) {
+		CString path = putty_path.Mid(0, pos + 1);
+		path += L"PLINK.EXE";
+		if (ends_with_quote)
+			path += L"\"";
+		return path;
+	}
+	return L"";
+}
 
 // CAboutDlg dialog used for App About
 
@@ -282,6 +297,7 @@ void CputtylauncherMFCDlg::loadFromJson()
 		Json::Reader reader;
 		if (reader.parse(p, p + len, root)) {
 			m_putty_path.SetWindowText(MY_A2W(root["putty"].asCString()));
+			m_plink_path = resolve_plink_path_by_putty_path(MY_A2W(root["putty"].asCString()));
 			m_chk_show_pwd.SetCheck(root["show_pwd"].asInt());
 
 			auto& data = root["data"];
@@ -329,6 +345,8 @@ void CputtylauncherMFCDlg::findPutty()
 	if (PathFileExists(cpath.GetBuffer())) {
 		cpath.Format(_T("\"%s\\PuTTY\\putty.exe\""), path);
 		m_putty_path.SetWindowText(cpath);
+		cpath.Format(_T("\"%s\\PuTTY\\plink.exe\""), path);
+		m_plink_path = cpath;
 	}
 }
 
@@ -472,6 +490,7 @@ void CputtylauncherMFCDlg::OnBnClickedButton1()
 		path.insert(0, 1, L'\"');
 		path.push_back(L'\"');
 		m_putty_path.SetWindowText((path.data()));
+		m_plink_path = resolve_plink_path_by_putty_path(path.data());
 	}
 }
 
@@ -545,6 +564,8 @@ void CputtylauncherMFCDlg::OnNMRClickTree1(NMHDR *pNMHDR, LRESULT *pResult)
 		} else {
 			menu.AppendMenu(MF_STRING, Ping, _T("&Ping"));
 			menu.AppendMenu(MF_STRING, Connect, _T("&Connect"));
+			menu.AppendMenu(MF_STRING, Reboot, _T("&Reboot"));
+			menu.AppendMenu(MF_STRING, Shutdown, _T("&Shutdown"));
 			menu.AppendMenu(MF_STRING, Edit, _T("&Edit"));
 		}
 
@@ -612,6 +633,15 @@ BOOL CputtylauncherMFCDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	case Connect:
 		OnBnClickedButtonConnectSession();
 		break;
+
+	case Reboot:
+		reboot_session();
+		break;
+
+	case Shutdown:
+		shutdown_session();
+		break;
+
 	case Edit:
 	{
 		auto session = getItemData(m_cur_item)->session;
@@ -691,7 +721,7 @@ void CputtylauncherMFCDlg::OnBnClickedButtonConnectSession()
 		CString path;
 		m_putty_path.GetWindowText(path);
 		if (path.IsEmpty()) {
-			path = _T("putty");
+			path = _T("PUTTY.EXE");
 		}
 		
 		CString param = data->session->connection_string(true).data();
@@ -700,6 +730,32 @@ void CputtylauncherMFCDlg::OnBnClickedButtonConnectSession()
 		//std::system((path));
 
 		ShellExecute(m_hWnd, _T("open"), path, param, NULL, SW_SHOW);
+	}
+}
+
+void CputtylauncherMFCDlg::reboot_session() {
+	auto data = getItemData(m_cur_item);
+	if (data && !data->is_folder && data->session) {
+		CString path = m_plink_path;
+		if (path.IsEmpty()) {
+			path = _T("PLINK.EXE");
+		}
+
+		CString param = (data->session->connection_string(true) + L" reboot").data();
+		ShellExecute(m_hWnd, _T("open"), path, param, NULL, SW_HIDE);
+	}
+}
+
+void CputtylauncherMFCDlg::shutdown_session() {
+	auto data = getItemData(m_cur_item);
+	if (data && !data->is_folder && data->session) {
+		CString path = m_plink_path;
+		if (path.IsEmpty()) {
+			path = _T("PLINK.EXE");
+		}
+
+		CString param = (data->session->connection_string(true) + L" shutdown -h now").data();
+		ShellExecute(m_hWnd, _T("open"), path, param, NULL, SW_HIDE);
 	}
 }
 
